@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -14,11 +13,11 @@ import {
 } from "@/components/ui/select"
 
 const filters = [
-  { name: "Normal", class: "" },
-  { name: "Grayscale", class: "grayscale" },
-  { name: "Sepia", class: "sepia" },
-  { name: "Blur", class: "blur-sm" },
-  { name: "Brightness", class: "brightness-125" },
+  { name: "Normal", class: "normal", value: "normal" },
+  { name: "Grayscale", class: "grayscale", value: "grayscale" },
+  { name: "Sepia", class: "sepia", value: "sepia" },
+  { name: "Blur", class: "blur-sm", value: "blur" },
+  { name: "Brightness", class: "brightness-125", value: "brightness" },
 ];
 
 const UploadPage = () => {
@@ -253,7 +252,7 @@ const UploadPage = () => {
               </SelectTrigger>
               <SelectContent>
                 {filters.map((filter) => (
-                  <SelectItem key={filter.name} value={filter.class}>
+                  <SelectItem key={filter.name} value={filter.value}>
                     {filter.name}
                   </SelectItem>
                 ))}
