@@ -4,7 +4,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MoreVertical, Settings, LogOut, TrendingUp, Wallet, Shield, HelpCircle } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 // Mock user data
 const mockUsers = {
@@ -93,6 +102,7 @@ const ProfilePage = () => {
   const [userProfile, setUserProfile] = useState(mockUsers['me']);
   const [isCurrentUser, setIsCurrentUser] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (userId && mockUsers[userId as keyof typeof mockUsers]) {
@@ -104,6 +114,50 @@ const ProfilePage = () => {
       setIsCurrentUser(true);
     }
   }, [userId]);
+
+  const handleMenuAction = (action: string) => {
+    switch (action) {
+      case 'settings':
+        toast({
+          title: "Settings",
+          description: "Settings page will be available soon",
+        });
+        break;
+      case 'analytics':
+        toast({
+          title: "Analytics",
+          description: "View your content performance",
+        });
+        break;
+      case 'wallet':
+        toast({
+          title: "Wallet & Withdrawals",
+          description: "Manage your earnings and withdrawals",
+        });
+        break;
+      case 'security':
+        toast({
+          title: "Privacy & Security",
+          description: "Manage your account security",
+        });
+        break;
+      case 'help':
+        toast({
+          title: "Help & Support",
+          description: "Contact our support team",
+        });
+        break;
+      case 'logout':
+        toast({
+          title: "Logout",
+          description: "You have been logged out",
+        });
+        navigate('/');
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-app-background text-app-foreground pb-16">
@@ -118,7 +172,47 @@ const ProfilePage = () => {
             <ChevronLeft size={24} />
           </Button>
           <h1 className="text-xl font-bold">@{userProfile.username}</h1>
-          <div className="w-10"></div>
+          
+          {isCurrentUser && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-app-foreground">
+                  <MoreVertical size={24} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Profile Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleMenuAction('settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuAction('analytics')}>
+                  <TrendingUp className="mr-2 h-4 w-4" />
+                  <span>Analytics</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuAction('wallet')}>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  <span>Wallet & Withdrawals</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuAction('security')}>
+                  <Shield className="mr-2 h-4 w-4" />
+                  <span>Privacy & Security</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuAction('help')}>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Help & Support</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleMenuAction('logout')}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          
+          {!isCurrentUser && <div className="w-10"></div>}
         </div>
 
         <div className="flex items-center mb-6">
