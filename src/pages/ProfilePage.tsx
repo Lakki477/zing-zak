@@ -1,87 +1,162 @@
 
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChevronLeft } from 'lucide-react';
 
-const mockUserProfile = {
-  username: "creator123",
-  displayName: "Creative Creator",
-  avatar: "https://i.pravatar.cc/300?img=8",
-  followers: 1520,
-  following: 245,
-  bio: "Digital creator | Making everyday videos | Follow for more content!",
-  videos: [
-    {
-      id: "v1",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+1",
-      views: 24500
-    },
-    {
-      id: "v2",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+2",
-      views: 18700
-    },
-    {
-      id: "v3",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+3",
-      views: 32100
-    },
-    {
-      id: "v4",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+4",
-      views: 9800
-    },
-    {
-      id: "v5",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+5",
-      views: 14300
-    },
-    {
-      id: "v6",
-      thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+6",
-      views: 27600
-    }
-  ]
+// Mock user data
+const mockUsers = {
+  'user1': {
+    id: 'user1',
+    username: "user1",
+    displayName: "Regular User",
+    avatar: "https://i.pravatar.cc/300?img=1",
+    followers: 1520,
+    following: 245,
+    bio: "Just a regular user | Posting random content | Follow for more!",
+    videos: [
+      {
+        id: "v1",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+1",
+        views: 24500
+      },
+      {
+        id: "v2",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+2",
+        views: 18700
+      }
+    ]
+  },
+  'dancer123': {
+    id: 'dancer123',
+    username: "dancer123",
+    displayName: "Dancing Star",
+    avatar: "https://i.pravatar.cc/300?img=5",
+    followers: 54200,
+    following: 125,
+    bio: "Professional dancer | Creating dance content | DM for collaborations!",
+    videos: [
+      {
+        id: "v3",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+1",
+        views: 98000
+      },
+      {
+        id: "v4",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+2",
+        views: 87600
+      },
+      {
+        id: "v5",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+3",
+        views: 45300
+      }
+    ]
+  },
+  'runner_girl': {
+    id: 'runner_girl',
+    username: "runner_girl",
+    displayName: "Running Girl",
+    avatar: "https://i.pravatar.cc/300?img=9",
+    followers: 32800,
+    following: 430,
+    bio: "Fitness enthusiast | Marathon runner | Sharing my running journey!",
+    videos: [
+      {
+        id: "v6",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Running+1",
+        views: 34500
+      },
+      {
+        id: "v7",
+        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Running+2",
+        views: 29700
+      }
+    ]
+  },
+  'me': {
+    id: 'me',
+    username: "me",
+    displayName: "My Profile",
+    avatar: "https://i.pravatar.cc/300?img=8",
+    followers: 120,
+    following: 450,
+    bio: "This is my personal profile | Just getting started!",
+    videos: []
+  }
 };
 
 const ProfilePage = () => {
+  const { userId } = useParams<{ userId: string }>();
+  const [userProfile, setUserProfile] = useState(mockUsers['me']);
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (userId && mockUsers[userId as keyof typeof mockUsers]) {
+      setUserProfile(mockUsers[userId as keyof typeof mockUsers]);
+      setIsCurrentUser(userId === 'me');
+    } else if (!userId) {
+      // If no userId provided, show current user profile
+      setUserProfile(mockUsers['me']);
+      setIsCurrentUser(true);
+    }
+  }, [userId]);
+
   return (
     <div className="min-h-screen bg-app-background text-app-foreground pb-16">
       <div className="p-4">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold">@{mockUserProfile.username}</h1>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(-1)}
+            className="text-app-foreground"
+          >
+            <ChevronLeft size={24} />
+          </Button>
+          <h1 className="text-xl font-bold">@{userProfile.username}</h1>
+          <div className="w-10"></div>
         </div>
 
         <div className="flex items-center mb-6">
           <Avatar className="w-20 h-20 border-2 border-app-accent">
-            <img src={mockUserProfile.avatar} alt={mockUserProfile.displayName} className="object-cover" />
+            <img src={userProfile.avatar} alt={userProfile.displayName} className="object-cover" />
           </Avatar>
           
           <div className="ml-4 flex-1">
-            <h2 className="text-lg font-bold">{mockUserProfile.displayName}</h2>
+            <h2 className="text-lg font-bold">{userProfile.displayName}</h2>
             
             <div className="flex space-x-4 mt-2 text-sm">
               <div>
-                <span className="font-semibold">{mockUserProfile.videos.length}</span>
+                <span className="font-semibold">{userProfile.videos.length}</span>
                 <span className="text-gray-400 ml-1">Videos</span>
               </div>
               <div>
-                <span className="font-semibold">{mockUserProfile.followers.toLocaleString()}</span>
+                <span className="font-semibold">{userProfile.followers.toLocaleString()}</span>
                 <span className="text-gray-400 ml-1">Followers</span>
               </div>
               <div>
-                <span className="font-semibold">{mockUserProfile.following.toLocaleString()}</span>
+                <span className="font-semibold">{userProfile.following.toLocaleString()}</span>
                 <span className="text-gray-400 ml-1">Following</span>
               </div>
             </div>
           </div>
         </div>
 
-        <p className="text-sm mb-4">{mockUserProfile.bio}</p>
+        <p className="text-sm mb-4">{userProfile.bio}</p>
         
-        <Button className="w-full bg-app-accent hover:bg-app-accent/90">
-          Edit Profile
-        </Button>
+        {isCurrentUser ? (
+          <Button className="w-full bg-app-accent hover:bg-app-accent/90">
+            Edit Profile
+          </Button>
+        ) : (
+          <Button className="w-full bg-app-accent hover:bg-app-accent/90">
+            Follow
+          </Button>
+        )}
       </div>
 
       <Tabs defaultValue="videos" className="w-full mt-4">
@@ -92,20 +167,34 @@ const ProfilePage = () => {
         </TabsList>
         
         <TabsContent value="videos" className="p-1">
-          <div className="grid grid-cols-3 gap-1">
-            {mockUserProfile.videos.map(video => (
-              <div key={video.id} className="aspect-[9/16] relative">
-                <img 
-                  src={video.thumbnail} 
-                  alt={`Video ${video.id}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute bottom-1 left-1 text-xs text-white">
-                  {(video.views / 1000).toFixed(1)}K
+          {userProfile.videos.length > 0 ? (
+            <div className="grid grid-cols-3 gap-1">
+              {userProfile.videos.map(video => (
+                <div key={video.id} className="aspect-[9/16] relative">
+                  <img 
+                    src={video.thumbnail} 
+                    alt={`Video ${video.id}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute bottom-1 left-1 text-xs text-white">
+                    {(video.views / 1000).toFixed(1)}K
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center text-gray-400">
+              <p>No videos posted yet</p>
+              {isCurrentUser && (
+                <Button 
+                  onClick={() => navigate('/upload')}
+                  className="mt-4 bg-app-accent hover:bg-app-accent/90"
+                >
+                  Upload your first video
+                </Button>
+              )}
+            </div>
+          )}
         </TabsContent>
         
         <TabsContent value="likes" className="p-4 text-center text-gray-400">

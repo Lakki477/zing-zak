@@ -8,6 +8,7 @@ const mockVideos = [
     id: '1',
     url: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-waving-her-hand-53976-large.mp4',
     user: {
+      id: 'user1',
       username: 'user1',
       avatar: 'https://i.pravatar.cc/150?img=1',
     },
@@ -19,6 +20,7 @@ const mockVideos = [
     id: '2',
     url: 'https://assets.mixkit.co/videos/preview/mixkit-girl-dancing-happily-in-a-field-of-flowers-4702-large.mp4',
     user: {
+      id: 'dancer123',
       username: 'dancer123',
       avatar: 'https://i.pravatar.cc/150?img=5',
     },
@@ -30,6 +32,7 @@ const mockVideos = [
     id: '3',
     url: 'https://assets.mixkit.co/videos/preview/mixkit-woman-running-above-the-city-1765-large.mp4',
     user: {
+      id: 'runner_girl',
       username: 'runner_girl',
       avatar: 'https://i.pravatar.cc/150?img=9',
     },

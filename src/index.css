@@ -78,3 +78,20 @@
   overflow-y: scroll;
   height: calc(100vh - 4rem);
 }
+
+/* Video filter styles */
+.grayscale {
+  filter: grayscale(100%);
+}
+
+.sepia {
+  filter: sepia(100%);
+}
+
+.blur-sm {
+  filter: blur(3px);
+}
+
+.brightness-125 {
+  filter: brightness(1.25);
+}
