@@ -1,111 +1,53 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from '@/lib/auth';
+import { profileService } from '@/services/profileService';
 import ProfileHeader from '@/components/Profile/ProfileHeader';
 import ProfileInfo from '@/components/Profile/ProfileInfo';
 import ProfileTabs from '@/components/Profile/ProfileTabs';
-import { UserProfile } from '@/types/profile';
-
-// Mock user data
-const mockUsers = {
-  'user1': {
-    id: 'user1',
-    username: "user1",
-    displayName: "Regular User",
-    avatar: "https://i.pravatar.cc/300?img=1",
-    followers: 1520,
-    following: 245,
-    bio: "Just a regular user | Posting random content | Follow for more!",
-    videos: [
-      {
-        id: "v1",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+1",
-        views: 24500
-      },
-      {
-        id: "v2",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Video+2",
-        views: 18700
-      }
-    ]
-  },
-  'dancer123': {
-    id: 'dancer123',
-    username: "dancer123",
-    displayName: "Dancing Star",
-    avatar: "https://i.pravatar.cc/300?img=5",
-    followers: 54200,
-    following: 125,
-    bio: "Professional dancer | Creating dance content | DM for collaborations!",
-    videos: [
-      {
-        id: "v3",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+1",
-        views: 98000
-      },
-      {
-        id: "v4",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+2",
-        views: 87600
-      },
-      {
-        id: "v5",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Dance+3",
-        views: 45300
-      }
-    ]
-  },
-  'runner_girl': {
-    id: 'runner_girl',
-    username: "runner_girl",
-    displayName: "Running Girl",
-    avatar: "https://i.pravatar.cc/300?img=9",
-    followers: 32800,
-    following: 430,
-    bio: "Fitness enthusiast | Marathon runner | Sharing my running journey!",
-    videos: [
-      {
-        id: "v6",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Running+1",
-        views: 34500
-      },
-      {
-        id: "v7",
-        thumbnail: "https://via.placeholder.com/200x350/111111/ffffff?text=Running+2",
-        views: 29700
-      }
-    ]
-  },
-  'me': {
-    id: 'me',
-    username: "me",
-    displayName: "My Profile",
-    avatar: "https://i.pravatar.cc/300?img=8",
-    followers: 120,
-    following: 450,
-    bio: "This is my personal profile | Just getting started!",
-    videos: []
-  }
-};
+import { Spinner } from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
+import EditProfileDrawer from '@/components/Profile/EditProfileDrawer';
 
 const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
-  const [userProfile, setUserProfile] = useState<UserProfile>(mockUsers['me']);
-  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const { user, profile: currentUserProfile } = useAuth();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (userId && mockUsers[userId as keyof typeof mockUsers]) {
-      setUserProfile(mockUsers[userId as keyof typeof mockUsers]);
-      setIsCurrentUser(userId === 'me');
-    } else if (!userId) {
-      // If no userId provided, show current user profile
-      setUserProfile(mockUsers['me']);
-      setIsCurrentUser(true);
-    }
-  }, [userId]);
+  const profileId = userId || user?.id;
+  const isCurrentUser = !userId || userId === user?.id;
+
+  const { data: userProfile, isLoading } = useQuery({
+    queryKey: ['profile', profileId],
+    queryFn: () => profileService.getProfile(profileId!),
+    enabled: !!profileId,
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: { userId: string, updates: any }) => 
+      profileService.updateProfile(data.userId, data.updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been successfully updated",
+      });
+      setIsDrawerOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        variant: "destructive",
+        title: "Update failed",
+        description: error.message || "Failed to update profile",
+      });
+    },
+  });
 
   const handleMenuAction = (action: string) => {
     switch (action) {
@@ -122,10 +64,7 @@ const ProfilePage = () => {
         });
         break;
       case 'wallet':
-        toast({
-          title: "Wallet & Withdrawals",
-          description: "Manage your earnings and withdrawals",
-        });
+        navigate('/wallet');
         break;
       case 'security':
         toast({
@@ -140,22 +79,60 @@ const ProfilePage = () => {
         });
         break;
       case 'logout':
-        toast({
-          title: "Logout",
-          description: "You have been logged out",
+        useAuth.getState().signOut().then(() => {
+          toast({
+            title: "Logout",
+            description: "You have been logged out",
+          });
+          navigate('/auth');
         });
-        navigate('/');
         break;
       default:
         break;
     }
   };
 
+  const handleEditProfile = (formData: any) => {
+    if (!user?.id) return;
+    
+    updateProfileMutation.mutate({
+      userId: user.id,
+      updates: formData
+    });
+  };
+
+  if (!user) {
+    // Redirect to login if not logged in
+    useEffect(() => {
+      navigate('/auth');
+    }, [navigate]);
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-app-background flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen bg-app-background p-4">
+        <div className="text-center mt-20">
+          <h2 className="text-xl font-semibold mb-4">Profile not found</h2>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-app-background text-app-foreground pb-16">
       <div className="p-4">
         <ProfileHeader 
-          username={userProfile.username} 
+          username={userProfile.username || ""} 
           isCurrentUser={isCurrentUser}
           handleMenuAction={handleMenuAction}
         />
@@ -163,13 +140,24 @@ const ProfilePage = () => {
         <ProfileInfo 
           userProfile={userProfile}
           isCurrentUser={isCurrentUser}
+          onEditClick={() => setIsDrawerOpen(true)}
         />
       </div>
 
       <ProfileTabs 
-        videos={userProfile.videos}
+        userId={userProfile.id}
         isCurrentUser={isCurrentUser}
       />
+
+      {isCurrentUser && (
+        <EditProfileDrawer
+          open={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          profile={userProfile}
+          onSave={handleEditProfile}
+          isLoading={updateProfileMutation.isPending}
+        />
+      )}
     </div>
   );
 };

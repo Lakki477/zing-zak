@@ -5,20 +5,11 @@ import { Avatar } from "@/components/ui/avatar";
 import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
+import { Video } from '@/types/supabase';
+import { videoService } from '@/services/videoService';
 
 interface VideoCardProps {
-  video: {
-    id: string;
-    url: string;
-    user: {
-      id: string;
-      username: string;
-      avatar: string;
-    };
-    description: string;
-    likes: number;
-    comments: number;
-  };
+  video: Video;
 }
 
 const VideoCard = ({ video }: VideoCardProps) => {
@@ -66,12 +57,12 @@ const VideoCard = ({ video }: VideoCardProps) => {
       if (!liked) {
         setLiked(true);
         showLikeAnimation();
+        videoService.likeVideo(video.id);
       }
     }
   };
   
   const showLikeAnimation = () => {
-    // Animation logic for heart could be added here
     toast({
       title: "Liked!",
       description: "You liked this video",
@@ -80,7 +71,11 @@ const VideoCard = ({ video }: VideoCardProps) => {
   
   const toggleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setLiked(!liked);
+    const newLikedState = !liked;
+    setLiked(newLikedState);
+    if (newLikedState) {
+      videoService.likeVideo(video.id);
+    }
   };
 
   const toggleSave = (e: React.MouseEvent) => {
@@ -102,7 +97,9 @@ const VideoCard = ({ video }: VideoCardProps) => {
 
   const goToProfile = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/profile/${video.user.id}`);
+    if (video.user_id) {
+      navigate(`/profile/${video.user_id}`);
+    }
   };
 
   const goToComments = (e: React.MouseEvent) => {
@@ -158,11 +155,11 @@ const VideoCard = ({ video }: VideoCardProps) => {
       <video
         ref={videoRef}
         className="video-player"
-        src={video.url}
+        src={video.video_url}
         loop
         playsInline
         onClick={handleDoubleTap}
-        poster="https://via.placeholder.com/1080x1920/000000/ffffff?text=Loading..."
+        poster={video.thumbnail_url || "https://via.placeholder.com/1080x1920/000000/ffffff?text=Loading..."}
       />
       
       <div className="absolute bottom-0 left-0 p-4 w-full">
@@ -173,11 +170,11 @@ const VideoCard = ({ video }: VideoCardProps) => {
               onClick={goToProfile}
             >
               <Avatar className="w-10 h-10 border-2 border-app-accent">
-                <img src={video.user.avatar} alt={video.user.username} />
+                <img src={video.user?.avatar_url || "https://i.pravatar.cc/300"} alt={video.user?.username || "user"} />
               </Avatar>
-              <span className="font-semibold text-white">@{video.user.username}</span>
+              <span className="font-semibold text-white">@{video.user?.username || "user"}</span>
             </div>
-            <p className="text-white text-sm">{video.description}</p>
+            <p className="text-white text-sm">{video.description || ""}</p>
           </div>
           
           <div className="flex flex-col items-center space-y-4">

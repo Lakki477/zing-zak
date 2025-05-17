@@ -9,7 +9,120 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          coins: number | null
+          created_at: string
+          display_name: string | null
+          followers: number | null
+          following: number | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          coins?: number | null
+          created_at?: string
+          display_name?: string | null
+          followers?: number | null
+          following?: number | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          coins?: number | null
+          created_at?: string
+          display_name?: string | null
+          followers?: number | null
+          following?: number | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      videos: {
+        Row: {
+          comments: number | null
+          created_at: string
+          description: string | null
+          id: string
+          likes: number | null
+          thumbnail_url: string | null
+          title: string
+          user_id: string
+          video_url: string
+          views: number | null
+        }
+        Insert: {
+          comments?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          likes?: number | null
+          thumbnail_url?: string | null
+          title: string
+          user_id: string
+          video_url: string
+          views?: number | null
+        }
+        Update: {
+          comments?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          likes?: number | null
+          thumbnail_url?: string | null
+          title?: string
+          user_id?: string
+          video_url?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_details: Json | null
+          payment_method: string | null
+          status: string
+          transaction_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status: string
+          transaction_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_details?: Json | null
+          payment_method?: string | null
+          status?: string
+          transaction_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,51 +1,18 @@
 
 import { useState, useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import VideoCard from './VideoCard';
-
-// Mock data for demonstration
-const mockVideos = [
-  {
-    id: '1',
-    url: 'https://assets.mixkit.co/videos/preview/mixkit-young-woman-waving-her-hand-53976-large.mp4',
-    user: {
-      id: 'user1',
-      username: 'user1',
-      avatar: 'https://i.pravatar.cc/150?img=1',
-    },
-    description: 'Having a great day! #sunshine #vibes',
-    likes: 1250,
-    comments: 42,
-  },
-  {
-    id: '2',
-    url: 'https://assets.mixkit.co/videos/preview/mixkit-girl-dancing-happily-in-a-field-of-flowers-4702-large.mp4',
-    user: {
-      id: 'dancer123',
-      username: 'dancer123',
-      avatar: 'https://i.pravatar.cc/150?img=5',
-    },
-    description: 'Dancing in the field! 💃 #dance #nature',
-    likes: 3500,
-    comments: 125,
-  },
-  {
-    id: '3',
-    url: 'https://assets.mixkit.co/videos/preview/mixkit-woman-running-above-the-city-1765-large.mp4',
-    user: {
-      id: 'runner_girl',
-      username: 'runner_girl',
-      avatar: 'https://i.pravatar.cc/150?img=9',
-    },
-    description: 'Morning run with amazing views #fitness #citylife',
-    likes: 945,
-    comments: 67,
-  },
-];
+import { videoService } from '@/services/videoService';
+import { Spinner } from '@/components/ui/spinner';
 
 const VideoFeed = () => {
-  const [videos, setVideos] = useState(mockVideos);
   const [currentIndex, setCurrentIndex] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
+
+  const { data: videos, isLoading, error } = useQuery({
+    queryKey: ['videos'],
+    queryFn: videoService.getVideos,
+  });
 
   const handleScroll = () => {
     if (feedRef.current) {
@@ -69,14 +36,36 @@ const VideoFeed = () => {
     }
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="feed-container flex items-center justify-center">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="feed-container flex items-center justify-center">
+        <p className="text-app-accent">Error loading videos</p>
+      </div>
+    );
+  }
+
   return (
     <div 
       ref={feedRef}
       className="feed-container no-scrollbar"
     >
-      {videos.map((video) => (
-        <VideoCard key={video.id} video={video} />
-      ))}
+      {videos && videos.length > 0 ? (
+        videos.map((video) => (
+          <VideoCard key={video.id} video={video} />
+        ))
+      ) : (
+        <div className="feed-container flex items-center justify-center">
+          <p>No videos available. Upload one to get started!</p>
+        </div>
+      )}
     </div>
   );
 };
