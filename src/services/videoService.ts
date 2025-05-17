@@ -17,7 +17,7 @@ export const videoService = {
       return [];
     }
     
-    return data as Video[];
+    return data as unknown as Video[];
   },
   
   getVideoById: async (id: string): Promise<Video | null> => {
@@ -35,7 +35,7 @@ export const videoService = {
       return null;
     }
     
-    return data as Video;
+    return data as unknown as Video;
   },
   
   uploadVideo: async (
