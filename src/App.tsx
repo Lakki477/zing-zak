@@ -1,4 +1,5 @@
 
+import React from "react"; // Keep React import at the top
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +16,6 @@ import CommentsPage from "./pages/CommentsPage";
 import AuthPage from "./pages/AuthPage";
 import WalletPage from "./pages/WalletPage";
 import NotFound from "./pages/NotFound";
-import React from "react"; // Add explicit React import
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient({
@@ -27,8 +27,9 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <React.StrictMode>
+const App = () => {
+  // Define App as a regular function component
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -52,7 +53,7 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
-  </React.StrictMode>
-);
+  );
+};
 
 export default App;
