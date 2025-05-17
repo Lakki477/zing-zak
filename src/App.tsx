@@ -15,7 +15,9 @@ import CommentsPage from "./pages/CommentsPage";
 import AuthPage from "./pages/AuthPage";
 import WalletPage from "./pages/WalletPage";
 import NotFound from "./pages/NotFound";
+import React from "react"; // Add explicit React import
 
+// Create QueryClient outside the component
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -26,29 +28,31 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/discover" element={<DiscoverPage />} />
-            <Route path="/upload" element={<UploadPage />} />
-            <Route path="/inbox" element={<InboxPage />} />
-            <Route path="/messages/:userId" element={<MessagingPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/profile/:userId" element={<ProfilePage />} />
-            <Route path="/comments/:videoId" element={<CommentsPage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/wallet" element={<WalletPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/discover" element={<DiscoverPage />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/inbox" element={<InboxPage />} />
+              <Route path="/messages/:userId" element={<MessagingPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/:userId" element={<ProfilePage />} />
+              <Route path="/comments/:videoId" element={<CommentsPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </React.StrictMode>
 );
 
 export default App;

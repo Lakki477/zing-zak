@@ -79,7 +79,9 @@ const ProfilePage = () => {
         });
         break;
       case 'logout':
-        useAuth.getState().signOut().then(() => {
+        // Fix: Call signOut properly
+        const authStore = useAuth.getState();
+        authStore.signOut().then(() => {
           toast({
             title: "Logout",
             description: "You have been logged out",
@@ -101,13 +103,12 @@ const ProfilePage = () => {
     });
   };
 
-  if (!user) {
-    // Redirect to login if not logged in
-    useEffect(() => {
+  // Redirect to login if not logged in
+  useEffect(() => {
+    if (!user) {
       navigate('/auth');
-    }, [navigate]);
-    return null;
-  }
+    }
+  }, [user, navigate]);
 
   if (isLoading) {
     return (
