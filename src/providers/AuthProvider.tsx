@@ -1,5 +1,6 @@
 
 import { ReactNode, useEffect } from "react";
+import React from "react"; // Add explicit React import
 import { initAuth, useAuth } from "@/lib/auth";
 import { Spinner } from "@/components/ui/spinner";
 

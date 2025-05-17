@@ -1,4 +1,5 @@
 
+import React from "react"; // Add explicit React import
 import { supabase } from "@/integrations/supabase/client";
 import { UserProfile } from "@/types/supabase";
 import { create } from "zustand";
@@ -14,6 +15,15 @@ type AuthState = {
   fetchProfile: () => Promise<void>;
 };
 
+// Helper function to clean up auth state
+const cleanupAuthState = () => {
+  Object.keys(localStorage).forEach((key) => {
+    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+};
+
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   profile: null,
@@ -21,6 +31,15 @@ export const useAuth = create<AuthState>((set, get) => ({
   initialized: false,
   
   signIn: async (email, password) => {
+    // Clean up existing auth state first
+    cleanupAuthState();
+    
+    try {
+      await supabase.auth.signOut({ scope: 'global' });
+    } catch (err) {
+      // Continue even if this fails
+    }
+    
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -54,7 +73,16 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
   
   signOut: async () => {
-    await supabase.auth.signOut();
+    // Clean up auth state
+    cleanupAuthState();
+    
+    // Attempt global sign out
+    try {
+      await supabase.auth.signOut({ scope: 'global' });
+    } catch (err) {
+      // Ignore errors
+    }
+    
     set({ user: null, profile: null });
   },
   
@@ -85,7 +113,10 @@ export const initAuth = async () => {
   
   if (data.session?.user) {
     useAuth.setState({ user: data.session.user });
-    await useAuth.getState().fetchProfile();
+    // Use setTimeout to avoid potential deadlocks
+    setTimeout(async () => {
+      await useAuth.getState().fetchProfile();
+    }, 0);
   }
   
   useAuth.setState({ loading: false, initialized: true });
@@ -94,7 +125,10 @@ export const initAuth = async () => {
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session?.user) {
       useAuth.setState({ user: session.user });
-      await useAuth.getState().fetchProfile();
+      // Use setTimeout to avoid potential deadlocks
+      setTimeout(async () => {
+        await useAuth.getState().fetchProfile();
+      }, 0);
     } else if (event === 'SIGNED_OUT') {
       useAuth.setState({ user: null, profile: null });
     }
